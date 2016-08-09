@@ -2,8 +2,10 @@ const { inspect } = require('util');
 const { RTM_EVENTS: { REACTION_ADDED, REACTION_REMOVED } } = require('@slack/client');
 
 const { InMemoryReactionRepository } = require('./inmemory_repo');
+const { UserNameRepository } = require('./user_name_repo');
 
 const reactionRepo = new InMemoryReactionRepository();
+const userNameRepo = new UserNameRepository();
 
 function accumulateReactions(client) {
   client.on(REACTION_ADDED, (msg) => {
@@ -16,24 +18,12 @@ function accumulateReactions(client) {
   });
 }
 
-// => Promise<{ userId: userName }>
-function fetchUserNamesByUserId(slackClient) {
-  if (this.memoizedNames) {
-    return Promise.resolve(this.memoizedNames);
-  } else {
-    return slackClient.web.users.list().then(users => {
-      this.memoizedNames = users.members.reduce((accum, user) => { accum[user.id] = user.name; return accum }, {});
-      return this.memoizedNames;
-    });
-  }
-}
-
 module.exports = (robot) => {
   const { adapter: { client } } = robot;
   accumulateReactions(client);
 
   robot.respond(/reactions/, (res) => {
-    fetchUserNamesByUserId(client).then(namesById => {
+    userNameRepo.getUserNames(client.web).then(namesById => {
       const stats = {};
       const reactions = reactionRepo.searchAll();
       Object.keys(reactions).forEach(userId => {
