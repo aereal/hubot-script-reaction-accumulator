@@ -1,52 +1,7 @@
 const { inspect } = require('util');
 const { RTM_EVENTS: { REACTION_ADDED, REACTION_REMOVED } } = require('@slack/client');
 
-/*
-interface ReactionStats {
-  [emoji: string]: number;
-}
-
-interface UserReactionStats {
-  [userId: string]: ReactionStats;
-}
-
-interface ReactionRepository {
-  add(userId: string, emoji: string): void;
-  remove(userId: string, emoji: string): void;
-  searchAll(): UserReactionStats;
-}
-*/
-
-// InMemoryReactionRepository extends ReactionRepository
-class InMemoryReactionRepository {
-  constructor() {
-    this.reactions = {};
-  }
-
-  add(userId, emoji) {
-    if (!this.reactions[userId]) {
-      this.reactions[userId] = {};
-    }
-    if (!this.reactions[userId][emoji]) {
-      this.reactions[userId][emoji] = 0;
-    }
-    this.reactions[userId][emoji]++;
-  }
-
-  remove(userId, emoji) {
-    if (!this.reactions[userId]) {
-      this.reactions[userId] = {};
-    }
-    if (!this.reactions[userId][emoji]) {
-      this.reactions[userId][emoji] = 0;
-    }
-    this.reactions[userId][emoji]--;
-  }
-
-  searchAll() {
-    return this.reactions;
-  }
-}
+const { InMemoryReactionRepository } = require('./inmemory_repo');
 
 const reactionRepo = new InMemoryReactionRepository();
 
