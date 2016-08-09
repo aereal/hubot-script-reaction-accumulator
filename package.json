@@ -33,5 +33,8 @@
   "main": "index.coffee",
   "scripts": {
     "test": "grunt test"
+  },
+  "dependencies": {
+    "@slack/client": "^3.5.4"
   }
 }
