@@ -25,12 +25,13 @@ module.exports = (robot) => {
   robot.respond(/reactions/, (res) => {
     userNameRepo.getUserNames(client.web).then(namesById => {
       const stats = {};
-      const reactions = reactionRepo.searchAll();
-      Object.keys(reactions).forEach(userId => {
-        const userName = namesById[userId];
-        stats[userName] = reactions[userId];
+      reactionRepo.searchAll().then(reactions => {
+        Object.keys(reactions).forEach(userId => {
+          const userName = namesById[userId];
+          stats[userName] = reactions[userId];
+        });
+        res.reply(inspect(stats));
       });
-      res.reply(inspect(stats));
     })
   });
 };

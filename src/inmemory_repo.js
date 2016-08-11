@@ -28,6 +28,7 @@ export class InMemoryReactionRepository {
       this.reactions[userId][emoji] = 0;
     }
     this.reactions[userId][emoji]++;
+    return Promise.resolve();
   }
 
   remove(userId, emoji) {
@@ -38,9 +39,10 @@ export class InMemoryReactionRepository {
       this.reactions[userId][emoji] = 0;
     }
     this.reactions[userId][emoji]--;
+    return Promise.resolve();
   }
 
   searchAll() {
-    return this.reactions;
+    return Promise.resolve(this.reactions);
   }
 }
