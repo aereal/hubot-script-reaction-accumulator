@@ -2,9 +2,10 @@ const { inspect } = require('util');
 const { RTM_EVENTS: { REACTION_ADDED, REACTION_REMOVED } } = require('@slack/client');
 
 const { InMemoryReactionRepository } = require('./inmemory_repo');
+const { RedisReactionRepository } = require('./redis_repo');
 const { UserNameRepository } = require('./user_name_repo');
 
-const reactionRepo = new InMemoryReactionRepository();
+const reactionRepo = new RedisReactionRepository(process.env.REDIS_URL || 'redis://localhost:6379');
 const userNameRepo = new UserNameRepository();
 
 function accumulateReactions(client) {
@@ -25,12 +26,13 @@ module.exports = (robot) => {
   robot.respond(/reactions/, (res) => {
     userNameRepo.getUserNames(client.web).then(namesById => {
       const stats = {};
-      const reactions = reactionRepo.searchAll();
-      Object.keys(reactions).forEach(userId => {
-        const userName = namesById[userId];
-        stats[userName] = reactions[userId];
+      reactionRepo.searchAll().then(reactions => {
+        Object.keys(reactions).forEach(userId => {
+          const userName = namesById[userId];
+          stats[userName] = reactions[userId];
+        });
+        res.reply(inspect(stats));
       });
-      res.reply(inspect(stats));
     })
   });
 };
